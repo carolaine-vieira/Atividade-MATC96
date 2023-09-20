@@ -6,22 +6,22 @@ from sklearn.metrics.pairwise import cosine_similarity
 df = pd.read_csv('doc.csv')
 
 # Extrair os textos das colunas 'Title' e 'Abstract'
-documentos = df['Title'] + ' ' + df['Abstract']
+docs = df['Title'] + ' ' + df['Abstract']
 query = input("Digite a sua query: ")
 
 # Inicializar o vetorizador TF-IDF
-tfidf_vectorizer = TfidfVectorizer(stop_words='english')
+vector = TfidfVectorizer(stop_words='english')
 
 # Transformar os documentos e a query em vetores TF-IDF
-tfidf_matrix = tfidf_vectorizer.fit_transform(documentos)
-query_vector = tfidf_vectorizer.transform([query])
+matrix = vector.fit_transform(docs)
+vector_query = vector.transform([query])
 
 # Calcular a similaridade cosseno entre a query e os documentos
-similaridades = cosine_similarity(query_vector, tfidf_matrix)
+similarity = cosine_similarity(vector_query, matrix)
 
 # Criar uma lista de tuplas (título do documento, pontuação de similaridade)
 ranqueamento = [(df.iloc[i]['Title'], similaridade)
-                for i, similaridade in enumerate(similaridades[0])]
+                for i, similaridade in enumerate(similarity[0])]
 
 # Ordenar a lista pelo valor de similaridade em ordem decrescente
 ranqueamento = sorted(ranqueamento, key=lambda x: x[1], reverse=True)
