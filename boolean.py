@@ -1,10 +1,24 @@
 import pandas as pd
+import nltk
+from nltk.corpus import stopwords
+
+nltk.download('stopwords')
+
+# Obtém a lista de stop words em inglês
+stop_words = set(stopwords.words('english'))
+
+
+def remove_stop_words(text):
+    words = text.split()
+    filtered_words = [word for word in words if word.lower() not in stop_words]
+    filtered_text = ' '.join(filtered_words)
+    return filtered_text
 
 
 def build_inverted_index(documents):
     inverted_index = {}
     for doc_id, doc_content in enumerate(documents):
-        for term in doc_content.split():
+        for term in remove_stop_words(doc_content).split():
             if term not in inverted_index:
                 inverted_index[term] = set()
             inverted_index[term].add(doc_id)
@@ -12,7 +26,7 @@ def build_inverted_index(documents):
 
 
 def process_query(query, inverted_index, df, columns):
-    query_terms = query.split()
+    query_terms = remove_stop_words(query).split()
     result_set = set()
 
     if len(query_terms) > 0:
@@ -37,7 +51,8 @@ def ranking(filePath, columns, query):
 
     # Construção do índice invertido
     documents = df[columns].fillna('').apply(
-        lambda x: ' '.join(x), axis=1).tolist()
+        lambda row: ' '.join(row), axis=1).tolist()
+
     inverted_index = build_inverted_index(documents)
 
     # Processamento da consulta
